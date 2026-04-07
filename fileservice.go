@@ -1,4 +1,4 @@
-package whitearchive
+package main
 
 import (
 	"crypto/sha256"
@@ -28,7 +28,7 @@ func (s FileService) SaveFile(path string, data []byte) error {
 	if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(fullPath, data, 0644)
 }
 
 type Scanner struct {

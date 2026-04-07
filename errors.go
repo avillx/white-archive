@@ -1,4 +1,4 @@
-package whitearchive
+package main
 
 import "errors"
 

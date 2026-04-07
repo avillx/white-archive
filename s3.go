@@ -1,4 +1,4 @@
-package whitearchive
+package main
 
 import (
 	"bytes"
@@ -16,8 +16,10 @@ type StorageClient struct {
 
 func NewStorageClient(endpoint, accessKey, secretKey, bucket string) (*StorageClient, error) {
 	client, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: true,
+		Creds:        credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure:       true,
+		BucketLookup: minio.BucketLookupPath,
+		Region:       "",
 	})
 	if err != nil {
 		return nil, err
