@@ -17,7 +17,7 @@ ENV USER=runner
 
 WORKDIR /arch
 
-RUN adduser $USER
+RUN adduser -D -h /home/$USER $USER
 
 RUN chown -R $USER:$USER /arch
 
