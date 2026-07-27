@@ -1,9 +1,9 @@
-package main_test
+package whitearchive_test
 
 import (
 	"context"
 	"testing"
-	whitearchive "white-archive"
+	whitearchive "white-archive/internal"
 )
 
 // mocks
@@ -63,7 +63,7 @@ func (m *mockFileService) Snapshot() (whitearchive.Snapshot, error) {
 
 func newSyncer(fs *mockFileService, storage *mockStorage) *whitearchive.Syncer {
 	cipher := whitearchive.NewCipher([]byte("test-key"))
-	return whitearchive.NewSyncer(fs, storage, cipher)
+	return whitearchive.NewSyncer(fs, cipher, storage)
 }
 
 // backup tests

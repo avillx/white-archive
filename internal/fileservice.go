@@ -1,4 +1,4 @@
-package main
+package whitearchive
 
 import (
 	"crypto/sha256"
@@ -44,31 +44,34 @@ func NewScanner(dir string) *Scanner {
 func (s *Scanner) Snapshot() (Snapshot, error) {
 	snapshot := Snapshot{}
 
-	err := filepath.WalkDir(s.directory, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
+	err := filepath.WalkDir(
+		s.directory,
+		func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if d.IsDir() {
+				return nil
+			}
+
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			relPath, err := filepath.Rel(s.directory, path)
+			if err != nil {
+				return err
+			}
+
+			snapshot[relPath] = Data{
+				Hash:   HashOf(data),
+				Update: time.Now(),
+			}
+
 			return nil
-		}
-
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-
-		relPath, err := filepath.Rel(s.directory, path)
-		if err != nil {
-			return err
-		}
-
-		snapshot[relPath] = Data{
-			Hash:   HashOf(data),
-			Update: time.Now(),
-		}
-
-		return nil
-	})
+		},
+	)
 
 	return snapshot, err
 }

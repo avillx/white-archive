@@ -1,4 +1,4 @@
-package main
+package whitearchive
 
 import (
 	"context"
@@ -24,7 +24,7 @@ type Syncer struct {
 	cipher      *Cipher
 }
 
-func NewSyncer(fileService FileProvider, storage Storage, cipher *Cipher) *Syncer {
+func NewSyncer(fileService FileProvider, cipher *Cipher, storage Storage) *Syncer {
 	return &Syncer{fileService: fileService, storage: storage, cipher: cipher}
 }
 
