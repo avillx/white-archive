@@ -23,8 +23,4 @@ RUN chown -R $USER:$USER /arch
 
 COPY --from=builder /arch/white_archive .
 
-COPY entrypoint.sh .
-
-RUN chmod +x entrypoint.sh
-
-ENTRYPOINT [ "./entrypoint.sh" ]
+CMD [ "./white_archive" ]

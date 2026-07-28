@@ -24,8 +24,16 @@ type Syncer struct {
 	cipher      *Cipher
 }
 
-func NewSyncer(fileService FileProvider, cipher *Cipher, storage Storage) *Syncer {
-	return &Syncer{fileService: fileService, storage: storage, cipher: cipher}
+func NewSyncer(
+	fileService FileProvider,
+	cipher *Cipher,
+	storage Storage,
+) *Syncer {
+	return &Syncer{
+		fileService: fileService,
+		storage:     storage,
+		cipher:      cipher,
+	}
 }
 
 // backup
@@ -83,10 +91,12 @@ func (s *Syncer) downloadFile(ctx context.Context, relPath string) error {
 	if err != nil {
 		return err
 	}
+
 	decrypted, err := s.cipher.Decrypt(data)
 	if err != nil {
 		return err
 	}
+
 	return s.fileService.SaveFile(relPath, decrypted)
 }
 
@@ -128,6 +138,7 @@ func (s *Syncer) downloadSnapshot(ctx context.Context) (Snapshot, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return UnmarshalSnapshot(decrypted)
 }
 

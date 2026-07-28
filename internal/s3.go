@@ -15,12 +15,15 @@ type StorageClient struct {
 }
 
 func NewStorageClient(endpoint, accessKey, secretKey, bucket string) (*StorageClient, error) {
-	client, err := minio.New(endpoint, &minio.Options{
-		Creds:        credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure:       true,
-		BucketLookup: minio.BucketLookupPath,
-		Region:       "",
-	})
+	client, err := minio.New(
+		endpoint,
+		&minio.Options{
+			Creds:        credentials.NewStaticV4(accessKey, secretKey, ""),
+			Secure:       true,
+			BucketLookup: minio.BucketLookupPath,
+			Region:       "",
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +31,14 @@ func NewStorageClient(endpoint, accessKey, secretKey, bucket string) (*StorageCl
 }
 
 func (s *StorageClient) Upload(ctx context.Context, name string, data []byte) error {
-	_, err := s.client.PutObject(ctx, s.bucketName, name, bytes.NewReader(data), int64(len(data)), minio.PutObjectOptions{})
+	_, err := s.client.PutObject(
+		ctx,
+		s.bucketName,
+		name,
+		bytes.NewReader(data),
+		int64(len(data)),
+		minio.PutObjectOptions{},
+	)
 	return err
 }
 
@@ -53,7 +63,3 @@ func (s *StorageClient) Download(ctx context.Context, name string) ([]byte, erro
 
 	return data, nil
 }
-
-// func (s *StorageClient) Delete(ctx context.Context, name string) error {
-// 	return s.client.RemoveObject(ctx, s.bucketName, name, minio.RemoveObjectOptions{})
-// }
