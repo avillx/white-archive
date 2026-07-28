@@ -9,42 +9,39 @@ import (
 )
 
 type Cipher struct {
-	key []byte
+	gcm cipher.AEAD
 }
 
-func NewCipher(key []byte) *Cipher {
-	hash := sha256.Sum256(key)
-	return &Cipher{key: hash[:]}
+func NewCipher(keyRaw []byte) (*Cipher, error) {
+
+	hash := sha256.Sum256(keyRaw)
+	key := hash[:]
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Cipher{
+		gcm: gcm,
+	}, nil
 }
 
 func (c *Cipher) Encrypt(data []byte) ([]byte, error) {
-	block, err := aes.NewCipher(c.key)
-	if err != nil {
-		return nil, err
-	}
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
+	nonce := make([]byte, c.gcm.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
 		return nil, err
 	}
 
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, err
-	}
-
-	return gcm.Seal(nonce, nonce, data, nil), nil
+	return c.gcm.Seal(nonce, nonce, data, nil), nil
 }
 
 func (c *Cipher) Decrypt(data []byte) ([]byte, error) {
-	block, err := aes.NewCipher(c.key)
-	if err != nil {
-		return nil, err
-	}
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return nil, err
-	}
-
-	nonce, ciphertext := data[:gcm.NonceSize()], data[gcm.NonceSize():]
-	return gcm.Open(nil, nonce, ciphertext, nil)
+	nonce, ciphertext := data[:c.gcm.NonceSize()], data[c.gcm.NonceSize():]
+	return c.gcm.Open(nil, nonce, ciphertext, nil)
 }

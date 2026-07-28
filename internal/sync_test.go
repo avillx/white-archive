@@ -61,9 +61,13 @@ func (m *mockFileService) Snapshot() (whitearchive.Snapshot, error) {
 
 // helpers
 
-func newSyncer(fs *mockFileService, storage *mockStorage) *whitearchive.Syncer {
-	cipher := whitearchive.NewCipher([]byte("test-key"))
-	return whitearchive.NewSyncer(fs, cipher, storage)
+func newSyncer(fs *mockFileService, storage *mockStorage) (*whitearchive.Syncer, error) {
+	cipher, err := whitearchive.NewCipher([]byte("test-key"))
+	if err != nil {
+		return nil, err
+	}
+
+	return whitearchive.NewSyncer(fs, cipher, storage), nil
 }
 
 // backup tests
@@ -73,7 +77,10 @@ func TestBackup_FirstRun(t *testing.T) {
 		"daily_logs/04.04.26.md": []byte("log content"),
 	})
 	storage := newMockStorage()
-	syncer := newSyncer(fs, storage)
+	syncer, err := newSyncer(fs, storage)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if err := syncer.Backup(context.Background()); err != nil {
 		t.Fatal(err)
@@ -93,7 +100,10 @@ func TestBackup_OnlyChangedFiles(t *testing.T) {
 		"file_b.md": []byte("original"),
 	})
 	storage := newMockStorage()
-	syncer := newSyncer(fs, storage)
+	syncer, err := newSyncer(fs, storage)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// first backup
 	if err := syncer.Backup(context.Background()); err != nil {
@@ -123,11 +133,21 @@ func TestRestore_FirstRun(t *testing.T) {
 	backupFS := newMockFileService(map[string][]byte{
 		"daily_logs/04.04.26.md": []byte("log content"),
 	})
-	if err := newSyncer(backupFS, storage).Backup(context.Background()); err != nil {
+
+	syncer, err := newSyncer(backupFS, storage)
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := newSyncer(fs, storage).Restore(context.Background()); err != nil {
+	if err := syncer.Backup(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+
+	syncerRestorer, err := newSyncer(fs, storage)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := syncerRestorer.Restore(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 
@@ -147,11 +167,20 @@ func TestRestore_OnlyMissingOrChanged(t *testing.T) {
 		"file_a.md": []byte("content"),
 		"file_b.md": []byte("updated"),
 	})
-	if err := newSyncer(backupFS, storage).Backup(context.Background()); err != nil {
+	syncer, err := newSyncer(backupFS, storage)
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := newSyncer(fs, storage).Restore(context.Background()); err != nil {
+	if err := syncer.Backup(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+
+	syncerRestorer, err := newSyncer(fs, storage)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := syncerRestorer.Restore(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 

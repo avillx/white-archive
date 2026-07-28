@@ -62,9 +62,14 @@ func run(
 		return err
 	}
 
+	cipher, err := whitearchive.NewCipher([]byte(cryptoKey))
+	if err != nil {
+		return err
+	}
+
 	syncer := whitearchive.NewSyncer(
 		whitearchive.NewFileService(directory),
-		whitearchive.NewCipher([]byte(cryptoKey)),
+		cipher,
 		storageClient,
 	)
 
