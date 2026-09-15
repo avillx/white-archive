@@ -23,4 +23,4 @@ RUN chown -R $USER:$USER /arch
 
 COPY --from=builder /arch/white_archive .
 
-CMD [ "./white_archive" ]
+ENTRYPOINT [ "./white_archive" ]
