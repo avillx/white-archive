@@ -16,3 +16,6 @@ All parameters required.
 | `-s3-access-key` | `S3_ACCESS_KEY` | S3 access key                      |
 | `-s3-secret-key` | `S3_SECRET_KEY` | S3 secret key                      |
 | `-s3-bucket`     | `S3_BUCKET`     | Bucket name                        |
+
+
+> useless shit
